@@ -1,0 +1,60 @@
+{
+	"__default__": {
+		"partition": "norm",
+		"time": "08:00:00",
+		"mem": "16g",
+		"cpus-per-task": "1",
+		"output": "00log/{rule}_{wildcards}.out",
+		"error": "00log/{rule}_{wildcards}.err",
+		"extra": "",
+		"name": "{rule}.job"
+	},
+	"align_minimap2": {
+		"partition": "norm",
+		"time": "24:00:00",
+		"mem": "60G",
+		"cpus-per-task": "16"		
+	},
+	"TranscriptClean": {
+		"partition": "largemem",
+		"time": "72:00:00",
+		"mem": "400G",
+		"cpus-per-task": "64"
+	},
+	"run_salmon":
+	{
+		"partition": "norm",
+		"time" : "24:00:00",
+		"mem" : "100G",
+		"cpus-per-task": "8"
+	},
+	"build_salmon_index":
+	{
+		"partition": "norm",
+		"mem" : "120G",
+		"cpus-per-task": "8"
+	},
+	"run_talon": {
+		"partition": "norm",
+		"time": "8:00:00",
+		"mem": "60G",
+		"cpus-per-task": "16"		
+	},
+	"train_doc2vec_and_infer_vectors" : {
+		"partition" : "quick",
+		"cpus-per-task": "1",
+		"time" : "00:02:00",
+		"mem": "2G"
+	},
+	"make_super_read_gtfs" : {
+		"time" : "24:00:00",
+		"mem" : "80G",
+		"cpus-per-task" : "32"
+	},
+	"run_experiment": {
+		"partition": "norm",
+		"time": "2:00:00",
+		"mem": "64G",
+		"cpus-per-task": "16"
+	}
+}
