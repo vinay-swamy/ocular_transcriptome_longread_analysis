@@ -37,7 +37,7 @@
 	"run_talon": {
 		"partition": "norm",
 		"time": "8:00:00",
-		"mem": "60G",
+		"mem": "120G",
 		"cpus-per-task": "16"		
 	},
 	"train_doc2vec_and_infer_vectors" : {

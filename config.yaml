@@ -2,7 +2,7 @@ st_brain_outdir: /data/swamyvs/eyeintegration_splicing/testing/stringtie_build_t
 subtissueFile: /data/swamyvs/pacbio_testing/ref/subtissues.txt
 tissueFile: /data/swamyvs/pacbio_testing/ref/tissues.txt
 ref_GTF: /data/swamyvs/ocular_transcriptomes_pipeline/ref/gencode_comp_ano.gtf
-working_dir: /data/swamyvs/ocular_transcriptome_longread_analysis/
+working_dir: /data/swamyvs/ocular_transcriptomes_longread_analysis/
 lr_sample_file: /data/swamyvs/pacbio_testing/sampleTableRPE_pacbio.tsv
 ref_genome: /data/swamyvs/ocular_transcriptomes_pipeline/ref/gencode_genome.fa
 variants: /data/swamyvs/pacbio_testing/ref/encode_variants.vcf.gz

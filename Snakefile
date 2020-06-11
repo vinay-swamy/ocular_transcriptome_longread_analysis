@@ -99,7 +99,8 @@ minimap2_version = config['minimap2_version']
 
 rule all:
     input: 
-         expand('data/combined_gtfs/lr_ref_allRPE_{type}.combined.gtf', type = ['loose', 'strict'])
+         expand('data/combined_gtfs/lr_ref_allRPE_{type}.combined.gtf', type = ['loose', 'strict']), 
+         expand('data/fasta_lengths/{sample}.tsv', sample = lr_sample_names)
        
 
 #### build transcriptomes 
@@ -160,6 +161,7 @@ rule clean_genome:
         '''
 
 
+
 rule build_minimap_index:
     input: 'data/seqs/gencode_genome_clean.fa'
     output: 'data/index/minimap2_index.mmi'
@@ -185,12 +187,25 @@ rule build_talon_db:
         talon_initialize_database \
             --f {input.gtf} --g {input.genome} \
             --a {params.anno_name} \
-            --5p 50 \
-            --3p 50 \
+            --5p 100 \
+            --3p 100 \
             --idprefix {params.prefix} \
             --o {params.outdir} 
 
         '''
+
+rule calc_fasta_lengths:
+    input:
+        fa=lambda  wildcards: lr_fql + lr_sample_dict[wildcards.sample]['filename']
+    output:
+        tab='data/fasta_lengths/{sample}.tsv'
+    shell:
+        '''
+        zcat {input.fa} > /tmp/{wildcards.sample}.fq
+        python3 scripts/get_fasta_lengths.py --inFasta /tmp/{wildcards.sample}.fq --outFile {output.tab}
+        '''
+
+
 
 rule align_minimap2:
     input:
@@ -273,8 +288,8 @@ rule run_talon:
         prefix= lambda wildcards: f'db_{wildcards.tissue}', 
         outdir_pf=lambda wildcards: f'data/talon_results/{wildcards.tissue}/{wildcards.tissue}'
     output: 
-        anno = 'data/talon_results/{tissue}/talon_read_annot.tsv', 
-        qc = 'data/talon_results/{tissue}/QC.log',
+        anno = 'data/talon_results/{tissue}/_talon_read_annot.tsv', 
+        qc = 'data/talon_results/{tissue}/talon_QC.log',
         gtf='data/talon_results/{tissue}/{tissue}_talon_observedOnly.gtf',
         abundance = 'data/talon_results/{tissue}/{tissue}_talon_abundance.tsv'
     shell:
@@ -312,12 +327,15 @@ rule merge_all_gtfs:
         #stringtie_sr = [f'data/stringtie_superread/{sample}.gtf'for sample in sr_sample_names if sr_sample_dict[sample]['origin'] == 'true_RPE'],
         lr_gtf = 'data/talon_results/RPE_Fetal.Tissue/RPE_Fetal.Tissue_talon_observedOnly.gtf'
     params: 
-            prefix = lambda wildcards: f'data/combined_gtfs/lr_ref_allRPE_{wildcards.type}',
-            flag= lambda wildcards:'--strict-match' if wildcards.type == 'strict' else '' 
+        lr_ref_prefix = lambda wildcards: f'data/combined_gtfs/lr_ref_allRPE_{wildcards.type}',
+        all_merge_prefix =lambda wildcards: f'data/combined_gtfs/all_merge_lr_RPE_{wildcards.type}',
+        flag= lambda wildcards:'--strict-match' if wildcards.type == 'strict' else '' 
     output: 
-        gtf = 'data/combined_gtfs/lr_ref_allRPE_{type}.combined.gtf'
+        lr_ref_gtf = 'data/combined_gtfs/lr_ref_allRPE_{type}.combined.gtf',
+        all_merge_gtf = 'data/combined_gtfs/all_merge_lr_RPE_{type}.combined.gtf'
     shell:
         '''
         module load {gffcompare_version}
-        gffcompare {params.flag}  -r {input.lr_gtf} -o {params.prefix} {input.stringtie_gtfs} 
+        gffcompare {params.flag}  -r {input.lr_gtf} -o {params.lr_ref_prefix} {input.stringtie_gtfs}
+        gffcompare {params.flag} -r {ref_GTF} -o {params.all_merge_prefix} {input.stringtie_gtfs} {input.lr_gtf}
         '''
